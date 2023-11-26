@@ -1,0 +1,184 @@
+CYCLIC REDUNDANCY CHECK(CRC):
+#include<stdio.h>
+char data[20],div[20],temp[4],total[100];
+int i,j,datalen,divlen,len,flag=1;
+void check();
+int main()
+{
+printf("Enter the total bit of data:"); 
+scanf("%d",&datalen);
+printf("\nEnter the total bit of divisor");
+scanf("%d",&divlen);
+len=datalen+divlen-1;
+printf("\nEnter the data:");
+scanf("%s",&data); 
+ printf("\nEnter the divisor");
+ scanf("%s",div); 
+ 
+for(i=0;i<datalen;i++)
+{
+total[i]=data[i]; 
+temp[i]=data[i]; 
+} 
+for(i=datalen;i<len;i++) //padded with zeroes corresponding to divlen 
+ total[i]='0'; 
+check(); // check for crc
+for(i=0;i<divlen;i++) // append crc output (remainder) at end of temp 
+ temp[i+datalen]=data[i];
+printf("\ntransmitted Code Word:%s",temp); 
+printf("\n\nEnter the received code word:");
+ scanf("%s",total); 
+check(); 
+for(i=0;i<divlen-1;i++)
+if(data[i]=='1')
+{
+flag=0;
+break;
+}
+if(flag==1)
+printf("\nsuccessful!!");
+else
+printf("\nreceived code word contains errors...\n");
+}
+void check()
+{
+ for(j=0;j<divlen;j++)
+ data[j]=total[j];
+ while(j<=len)
+{
+ if(data[0]=='1') // in XOR ans remains as it is except in case 
+of 1
+ for(i = 1;i <divlen ; i++)
+ data[i] = (( data[i] == div[i])?'0':'1');
+ for(i=0;i<divlen-1;i++) // left shift data word by 1 after div
+ data[i]=data[i+1];
+ data[i]=total[j++]; // replace empty right by total
+ }
+}
+
+
+Hamming code:
+#include <stdio.h>
+#include <math.h>
+int input[32];
+int code[32];
+int ham_calc(int,int);
+void main()
+{
+int n,i,p_n = 0,c_l,j,k;
+printf("Please enter the length of the Data Word: ");
+scanf("%d",&n);
+printf("Please enter the Data Word:\n");
+for(i=0;i<n;i++)
+{
+scanf("%d",&input[i]);
+}
+i=0;
+while(n>(int)pow(2,i)-(i+1))
+{
+p_n++;
+i++;
+}
+c_l = p_n + n;
+j=k=0;
+for(i=0;i<c_l;i++)
+{
+if(i==((int)pow(2,k)-1))
+{
+code[i]=0;
+k++;
+}
+else
+{
+code[i]=input[j];
+j++;
+}
+}
+for(i=0;i<p_n;i++)
+{
+int position = (int)pow(2,i);
+int value = ham_calc(position,c_l);
+code[position-1]=value;
+}
+printf("\nThe calculated Code Word is: ");
+for(i=0;i<c_l;i++)
+printf("%d",code[i]);
+printf("\n");
+printf("Please enter the received Code Word:\n");
+for(i=0;i<c_l;i++)
+scanf("%d",&code[i]);
+int error_pos = 0;
+for(i=0;i<p_n;i++)
+{
+int position = (int)pow(2,i);
+int value = ham_calc(position,c_l);
+if(value != 0)
+error_pos+=position;
+}
+if(error_pos == 1)
+printf("The received Code Word is correct.\n");
+else
+printf("Error at bit position: %d\n",error_pos);
+}
+int ham_calc(int position,int c_l)
+{
+int count=0,i,j;
+i=position-1;
+while(i<c_l)
+{
+for(j=i;j<i+position;j++)
+{
+if(code[j] == 1)
+count++;
+}
+i=i+2*position;
+}
+if(count%2 == 0)
+return 0;
+else
+return 1;
+}
+
+Longitudinal Redundancy Check (LRC):
+#include #include<stdio.h>
+#include<conio.h>
+void main()
+{
+int l1,bit[100],count=0,i,choice;
+clrscr();
+printf("Enter the length of data stream: ");
+scanf("%d",&l1);
+printf("\nEnter the data stream ");
+for(i=0;i
+{
+scanf("%d",&bit[i]);
+if(bit[i]==1)
+count=count+1;
+}
+printf("Number of 1's are %d",count);
+printf("\nEnter the choice to implement parity bit");
+printf("\n1-Sender side\n2-Receiver side\n");
+scanf("%d",&choice);
+switch(choice)
+{
+case 1:
+if(count%2==0)
+bit[l1]=0;
+else
+bit[l1]=1;
+printf("\nThe data stream after adding parity bit is\n");
+for(i=0;i<=l1;i++)
+printf("%d",bit[i]);
+break;
+case 2:
+if(count%2==0)
+printf("There is no error in the received data stream");
+else
+printf("There is error in the received data stream");
+break;
+default:
+printf("Invalid choice");
+break;
+}
+getch();
+}
